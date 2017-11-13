@@ -4,7 +4,8 @@
   "description": "Easily wire up models to APIs with supported for complex, nested saving.",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "lint": "eslint lib",
+    "test": "npm run lint && _mocha --report lcovonly -- test/**/*_spec.js"
   },
   "repository": {
     "type": "git",
@@ -23,16 +24,18 @@
     "url": "https://github.com/ericclemmons/bookshelf-manager/issues"
   },
   "devDependencies": {
-    "bluebird": "^3.4.1",
     "bookshelf": "^0.10.0",
     "deep-diff": "^0.3.4",
+    "eslint": "^4.11.0",
     "knex": "^0.12.1",
+    "knex-migrator": "^3.0.6",
     "mocha": "^3.0.2",
+    "should": "^13.1.3",
     "sqlite3": "^3.1.4"
   },
-  "peerDependencies": {
-    "bluebird": "3.x",
-    "bookshelf": "^0.10.0",
-    "knex": "^0.11.0 || ^0.12.0"
+  "dependencies": {
+    "bluebird": "^3.4.1",
+    "ghost-ignition": "^2.8.16",
+    "lodash": "^4.17.4"
   }
 }
