@@ -15,6 +15,6 @@ module.exports = function (bookshelf) {
 
     return {
         CustomField: bookshelf.model('CustomField', CustomField),
-        CustomFields: bookshelf.collection('CustomFields', CustomField),
+        CustomFields: bookshelf.collection('CustomFields', CustomFields),
     };
 };
