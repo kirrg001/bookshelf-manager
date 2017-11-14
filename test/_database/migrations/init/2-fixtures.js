@@ -2,7 +2,7 @@ const Promise = require('bluebird');
 const models = require('../../models');
 const testUtils = require('../../../utils');
 
-exports.up = function up(options) {
+exports.up = function up() {
     const posts = [
         {
             title: 'First Post'
@@ -16,13 +16,16 @@ exports.up = function up(options) {
                 {
                     slug: 'slug2'
                 }
-            ]
+            ],
+            news: {
+                keywords: 'future,world,sun-down'
+            }
         }
     ];
 
     return Promise.each(posts, function (post) {
         return models.Post.add(post).then(function (result) {
-            testUtils.fixtures.add('posts', result.toJSON({withRelated: 'tags'}));
+            testUtils.fixtures.add('posts', result.toJSON({withRelated: ['tags', 'news']}));
         });
     });
 };

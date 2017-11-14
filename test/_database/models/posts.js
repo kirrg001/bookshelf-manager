@@ -19,24 +19,30 @@ module.exports = function (bookshelf) {
              * this.relations = ['tags']
              */
             this.on('saving', function (model) {
-                // ONLY IF relations were passed
+                // @TODO: only if relations were passed
                 if (model.hasChanged('tags')) {
                     this._tags = model.get('tags');
                     model.unset('tags');
+                }
+
+                if (model.hasChanged('news')) {
+                    this._news = model.get('news');
+                    model.unset('news');
                 }
             });
 
             // @TODO: we have to destroy the relationships before the model get's destroyed!
             // @TODO: the plugin should check if the operation is DELETE, then it auto destroys all relations
             this.on('destroying', function (model, options) {
-                return bookshelf.manager.updateRelations(model, {tags: []}, options)
+                return bookshelf.manager.updateRelations(model, {tags: [], news: {}}, options)
                     .then(() => {
                         delete this._tags;
+                        delete this._news;
                     });
             });
 
             this.on('saved', function (model, attributes, options) {
-                if (!this._tags) {
+                if (!this._tags && !this._news) {
                     return;
                 }
 
@@ -52,15 +58,20 @@ module.exports = function (bookshelf) {
                     }
                 };
 
-                return bookshelf.manager.updateRelations(model, {tags: this._tags}, options, pluginOptions)
+                return bookshelf.manager.updateRelations(model, {tags: this._tags, news: this._news}, options, pluginOptions)
                     .then(() => {
                         delete this._tags;
+                        delete this._news;
                     });
             });
         },
 
         tags: function () {
             return this.belongsToMany('Tag').withPivot('sort_order').query('orderBy', 'sort_order', 'ASC');
+        },
+
+        news: function () {
+            return this.hasOne('News', 'post_id');
         }
     }, {
         add: function (data) {
