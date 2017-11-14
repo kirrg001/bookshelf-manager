@@ -17,5 +17,11 @@ exports.up = function up(options) {
         table.increments('id').primary().nullable(false);
         table.string('keywords', 100).nullable(true);
         table.integer('post_id').unsigned().unique().nullable(false).references('posts.id');
+    }).createTable('custom_fields', function (table) {
+        table.increments('id').primary().nullable(false);
+        table.string('key', 100).nullable(false);
+        table.string('value', 255).nullable(true);
+        table.integer('post_id').unsigned().nullable(false).references('posts.id');
+        table.unique(['key', 'post_id']);
     });
 };

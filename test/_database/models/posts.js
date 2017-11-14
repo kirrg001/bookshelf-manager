@@ -29,20 +29,26 @@ module.exports = function (bookshelf) {
                     this._news = model.get('news');
                     model.unset('news');
                 }
+
+                if (model.hasChanged('custom_fields')) {
+                    this._custom_fields = model.get('custom_fields');
+                    model.unset('custom_fields');
+                }
             });
 
             // @TODO: we have to destroy the relationships before the model get's destroyed!
             // @TODO: the plugin should check if the operation is DELETE, then it auto destroys all relations
             this.on('destroying', function (model, options) {
-                return bookshelf.manager.updateRelations(model, {tags: [], news: {}}, options)
+                return bookshelf.manager.updateRelations(model, {tags: [], news: {}, custom_fields: []}, options)
                     .then(() => {
                         delete this._tags;
                         delete this._news;
+                        delete this._custom_fields;
                     });
             });
 
             this.on('saved', function (model, attributes, options) {
-                if (!this._tags && !this._news) {
+                if (!this._tags && !this._news && !this._custom_fields) {
                     return;
                 }
 
@@ -58,10 +64,15 @@ module.exports = function (bookshelf) {
                     }
                 };
 
-                return bookshelf.manager.updateRelations(model, {tags: this._tags, news: this._news}, options, pluginOptions)
+                return bookshelf.manager.updateRelations(model, {
+                    tags: this._tags,
+                    news: this._news,
+                    custom_fields: this._custom_fields
+                }, options, pluginOptions)
                     .then(() => {
                         delete this._tags;
                         delete this._news;
+                        delete this._custom_fields;
                     });
             });
         },
@@ -72,6 +83,10 @@ module.exports = function (bookshelf) {
 
         news: function () {
             return this.hasOne('News', 'post_id');
+        },
+
+        custom_fields: function () {
+            return this.hasMany('CustomFields', 'post_id');
         }
     }, {
         add: function (data) {

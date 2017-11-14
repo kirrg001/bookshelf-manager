@@ -19,13 +19,23 @@ exports.up = function up() {
             ],
             news: {
                 keywords: 'future,world,sun-down'
-            }
+            },
+            custom_fields: [
+                {
+                    key: 'field1',
+                    value: 'value1'
+                },
+                {
+                    key: 'field2',
+                    value: 'value2'
+                }
+            ]
         }
     ];
 
     return Promise.each(posts, function (post) {
         return models.Post.add(post).then(function (result) {
-            testUtils.fixtures.add('posts', result.toJSON({withRelated: ['tags', 'news']}));
+            testUtils.fixtures.add('posts', result.toJSON({withRelated: ['tags', 'news', 'customFields']}));
         });
     });
 };

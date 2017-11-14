@@ -14,7 +14,7 @@ describe('[Integration] Mixed', function () {
 
     describe('fetch', function () {
         it('existing', function () {
-            return models.Post.fetchAll({withRelated: ['news', 'tags']})
+            return models.Post.fetchAll({withRelated: ['news', 'tags', 'custom_fields']})
                 .then(function (posts) {
                     posts.length.should.eql(2);
                     posts.models[0].related('news').toJSON().should.eql({});
@@ -22,6 +22,9 @@ describe('[Integration] Mixed', function () {
 
                     posts.models[0].related('tags').length.should.eql(0);
                     posts.models[1].related('tags').length.should.eql(2);
+
+                    posts.models[0].related('custom_fields').length.should.eql(0);
+                    posts.models[1].related('custom_fields').length.should.eql(2);
                 });
         });
     });
@@ -40,13 +43,15 @@ describe('[Integration] Mixed', function () {
                             {
                                 slug: 'football'
                             }
-                        ]
+                        ],
+                        custom_fields: []
                     },
                     expect: function (result) {
                         result.get('title').should.eql('only-me');
                         result.related('news').toJSON().keywords.should.eql('future,something');
                         result.related('tags').models.length.should.eql(1);
                         result.related('tags').models[0].get('slug').should.eql('football');
+                        result.related('custom_fields').models.length.should.eql(0);
                     }
                 }
             }

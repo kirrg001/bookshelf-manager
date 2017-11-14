@@ -30,6 +30,12 @@ describe('[Integration] HasOne: Posts/News', function () {
         });
     });
 
+    describe('destroy', function () {
+        it('fill me', function () {
+
+        });
+    });
+
     describe('edit', function () {
         const editCases = {
             editPostOnlyWithNews: function () {
