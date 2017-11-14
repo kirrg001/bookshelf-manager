@@ -12,15 +12,34 @@ module.exports = function (bookshelf) {
             /**
              * @TODO: make this whole part of the plugin!
              *
+             * - destroy does not trigger saved (!)
+             * - combine both!
+             *
              * e.g.
              * this.relations = ['tags']
              */
             this.on('saving', function (model) {
-                this._tags = model.get('tags');
-                model.unset('tags');
+                // ONLY IF relations were passed
+                if (model.hasChanged('tags')) {
+                    this._tags = model.get('tags');
+                    model.unset('tags');
+                }
+            });
+
+            // @TODO: we have to destroy the relationships before the model get's destroyed!
+            // @TODO: the plugin should check if the operation is DELETE, then it auto destroys all relations
+            this.on('destroying', function (model, options) {
+                return bookshelf.manager.updateRelations(model, {tags: []}, options)
+                    .then(() => {
+                        delete this._tags;
+                    });
             });
 
             this.on('saved', function (model, attributes, options) {
+                if (!this._tags) {
+                    return;
+                }
+
                 const pluginOptions = {
                     belongsToMany: {
                         after: function (existing, targets) {
@@ -63,6 +82,13 @@ module.exports = function (bookshelf) {
 
                         return dbPost.save(_.omit(data, 'id'), _.merge({transacting: transacting}, options));
                     });
+            });
+        },
+
+        destroy: function (data) {
+            return bookshelf.transaction((transacting) => {
+                return this.forge(_.pick(data, 'id'))
+                    .destroy({transacting: transacting});
             });
         }
     });
