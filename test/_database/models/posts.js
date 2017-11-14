@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const Promise = require('bluebird');
 
 module.exports = function (bookshelf) {
     bookshelf.plugin('registry');
@@ -20,7 +21,19 @@ module.exports = function (bookshelf) {
             });
 
             this.on('saved', function (model, attributes, options) {
-                return bookshelf.manager.updateRelations(model, {tags: this._tags}, options)
+                const pluginOptions = {
+                    belongsToMany: {
+                        after: function (existing, targets) {
+                            return Promise.each(targets.models, function (target, index) {
+                                return existing.updatePivot({
+                                    sort_order: index
+                                }, _.extend({}, options, {query: {where: {tag_id: target.id}}}));
+                            });
+                        }
+                    }
+                };
+
+                return bookshelf.manager.updateRelations(model, {tags: this._tags}, options, pluginOptions)
                     .then(() => {
                         delete this._tags;
                     });
@@ -38,17 +51,17 @@ module.exports = function (bookshelf) {
             });
         },
 
-        edit: function (data) {
+        edit: function (data, options) {
             return bookshelf.transaction((transacting) => {
                 let post = this.forge(_.pick(data, 'id'));
 
-                return post.fetch({transacting: transacting})
+                return post.fetch(_.merge({transacting: transacting}, options))
                     .then((dbPost) => {
                         if (!dbPost) {
                             throw new Error('Post does not exist');
                         }
 
-                        return dbPost.save(_.omit(data, 'id'), {transacting: transacting});
+                        return dbPost.save(_.omit(data, 'id'), _.merge({transacting: transacting}, options));
                     });
             });
         }

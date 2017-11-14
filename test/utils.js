@@ -15,7 +15,12 @@ const knexMigrator = new KnexMigrator({
     knexMigratorFilePath: path.join(__dirname, '_database')
 });
 
+let connection;
+
 exports.database = {
+    getConnection: function () {
+        return connection;
+    },
     connect: function connect() {
         return knex(config.get('database'));
     },
@@ -24,7 +29,8 @@ exports.database = {
             .then(() => {
                 return knex(config.get('database'));
             })
-            .then((connection) => {
+            .then((_connection) => {
+                connection = _connection;
                 return models.init(connection);
             });
     },
