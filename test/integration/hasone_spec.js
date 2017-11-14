@@ -31,8 +31,46 @@ describe('[Integration] HasOne: Posts/News', function () {
     });
 
     describe('destroy', function () {
-        it('fill me', function () {
+        const destroyCases = {
+            existingPostWithNews: function () {
+                return {
+                    expect: function () {
+                        return testUtils.database.getConnection()('news')
+                            .then(function (result) {
+                                result.length.should.eql(0);
+                            });
+                    }
+                }
+            },
+            existingPostWithoutTags: function () {
+                return {
+                    id: 1,
+                    expect: function () {
+                        return testUtils.database.getConnection()('news').where('post_id', 1)
+                            .then(function (result) {
+                                result.length.should.eql(0);
+                            });
+                    }
+                }
+            }
+        };
 
+        return _.each(Object.keys(destroyCases), function (key) {
+            it(key, function () {
+                let destroyCase = destroyCases[key]();
+
+                return models.Post.destroy({id: destroyCase.id || 2})
+                    .then(function (result) {
+                        return destroyCase.expect(result);
+                    })
+                    .catch(function (err) {
+                        if (err instanceof should.AssertionError) {
+                            throw err;
+                        }
+
+                        return destroyCase.expect(err);
+                    });
+            });
         });
     });
 
