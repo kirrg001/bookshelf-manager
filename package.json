@@ -1,7 +1,7 @@
 {
-  "name": "bookshelf-manager",
-  "version": "0.3.0",
-  "description": "Easily wire up models to APIs with supported for complex, nested saving.",
+  "name": "bookshelf-relations",
+  "version": "0.1.0",
+  "description": "Auto update relations",
   "main": "index.js",
   "scripts": {
     "lint": "eslint lib",
@@ -9,19 +9,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/ericclemmons/bookshelf-manager.git"
+    "url": "git://github.com/TryGhost/bookshelf-relations.git"
   },
   "keywords": [
     "bookshelf",
-    "repository",
-    "manager",
-    "save",
-    "crud"
+    "relations",
+    "relation",
+    "nested",
+    "relationship",
+    "relationships",
+    "associations",
+    "association"
   ],
-  "author": "Eric Clemmons",
+  "author": {
+    "name": "Ghost Foundation",
+    "email": "hello@ghost.org",
+    "web": "https://ghost.org"
+  },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ericclemmons/bookshelf-manager/issues"
+    "url": "https://github.com/TryGhost/bookshelf-relations/issues"
   },
   "devDependencies": {
     "bookshelf": "^0.10.0",

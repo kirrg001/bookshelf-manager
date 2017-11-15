@@ -27,7 +27,9 @@ describe('[Integration] HasMany: Posts/CustomFields', function () {
         const destroyCases = {
             existingPostWithFields: function () {
                 return {
-                    expect: function () {
+                    expect: function (result) {
+                        result.related('custom_fields').models.length.should.eql(0);
+
                         return testUtils.database.getConnection()('custom_fields')
                             .then(function (result) {
                                 result.length.should.eql(0);

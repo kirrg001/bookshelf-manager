@@ -34,7 +34,9 @@ describe('[Integration] HasOne: Posts/News', function () {
         const destroyCases = {
             existingPostWithNews: function () {
                 return {
-                    expect: function () {
+                    expect: function (result) {
+                        result.related('news').toJSON().should.eql({});
+
                         return testUtils.database.getConnection()('news')
                             .then(function (result) {
                                 result.length.should.eql(0);
@@ -144,6 +146,22 @@ describe('[Integration] HasOne: Posts/News', function () {
                                 result[0].post_id.should.eql(2);
                                 result[0].keywords.should.eql('future,something');
                             });
+                    }
+                }
+            },
+            withRelated: function () {
+                return {
+                    options: {
+                        withRelated: ['news']
+                    },
+                    values: {
+                        news: {
+                            id: testUtils.fixtures.getAll().posts[1].news.id,
+                            keywords: testUtils.fixtures.getAll().posts[1].news.keywords
+                        }
+                    },
+                    expect: function (result) {
+                        result.related('news').toJSON().keywords.should.eql(testUtils.fixtures.getAll().posts[1].news.keywords);
                     }
                 }
             },

@@ -35,7 +35,14 @@ exports.database = {
             });
     },
     reset: function () {
-        return knexMigrator.reset({force: true});
+        return knexMigrator.reset({force: true})
+            .then(() => {
+                if (!connection) {
+                    return;
+                }
+
+                return connection.destroy();
+            });
     }
 };
 

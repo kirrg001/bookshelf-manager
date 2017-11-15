@@ -2,9 +2,13 @@ exports.up = function up(options) {
     let connection = options.connection;
     let schema = connection.schema;
 
-    return schema.createTable('posts', function (table) {
+    return schema.createTable('authors', function (table) {
+        table.increments('id').primary().nullable(false);
+        table.string('name', 100).nullable(false);
+    }).createTable('posts', function (table) {
         table.increments('id').primary().nullable(false);
         table.string('title');
+        table.integer('author_id').unsigned().nullable(false).references('authors.id');
     }).createTable('tags', function (table) {
         table.increments('id').primary().nullable(false);
         table.string('slug', 191).unique().nullable(false);

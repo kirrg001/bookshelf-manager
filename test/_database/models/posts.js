@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 module.exports = function (bookshelf) {
     bookshelf.plugin('registry');
 
-    bookshelf.plugin(require('../../../lib/manager'), {
+    bookshelf.plugin(require('../../../lib/plugin'), {
         hooks: {
             belongsToMany: {
                 after: function (existing, targets, options) {
@@ -21,7 +21,7 @@ module.exports = function (bookshelf) {
     let Post = bookshelf.Model.extend({
         tableName: 'posts',
 
-        relationships: ['tags', 'news', 'custom_fields'],
+        relationships: ['tags', 'news', 'custom_fields', 'author'],
 
         initialize: function () {
             bookshelf.Model.prototype.initialize.call(this);
@@ -37,6 +37,10 @@ module.exports = function (bookshelf) {
 
         custom_fields: function () {
             return this.hasMany('CustomFields', 'post_id');
+        },
+
+        author: function () {
+            return this.belongsTo('Author', 'author_id');
         }
     }, {
         add: function (data) {

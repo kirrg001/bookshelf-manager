@@ -138,7 +138,7 @@ describe('[Integration] BelongsToMany: Posts/Tags', function () {
             it(key, function () {
                 let addCase = addCases[key]();
 
-                return models.Post.add(addCase.values)
+                return models.Post.add(_.merge({author: {name: 'Tomas'}}, addCase.values))
                     .then(function (result) {
                         return addCase.expect(result);
                     })
@@ -157,7 +157,9 @@ describe('[Integration] BelongsToMany: Posts/Tags', function () {
         const destroyCases = {
             existingPostWithTags: function () {
                 return {
-                    expect: function () {
+                    expect: function (result) {
+                        result.related('tags').models.length.should.eql(0);
+
                         return testUtils.database.getConnection()('posts_tags')
                             .then(function (result) {
                                 result.length.should.eql(0);
@@ -363,6 +365,55 @@ describe('[Integration] BelongsToMany: Posts/Tags', function () {
                             })
                             .then(function (result) {
                                 result.length.should.eql(3);
+                            });
+                    }
+                }
+            },
+            useWithRelated: function () {
+                return {
+                    options: {
+                        withRelated: ['tags']
+                    },
+                    values: {
+                        tags: [
+                            {
+                                id: testUtils.fixtures.getAll().posts[1].tags[0].id,
+                                slug: testUtils.fixtures.getAll().posts[1].tags[0].slug
+                            }
+                        ]
+                    },
+                    expect: function (result) {
+                        result.get('title').should.eql(testUtils.fixtures.getAll().posts[1].title);
+                        result.related('tags').length.should.eql(1);
+                    }
+                }
+            },
+            editExistingTag: function () {
+                return {
+                    values: {
+                        tags: [
+                            {
+                                id: testUtils.fixtures.getAll().posts[1].tags[0].id,
+                                slug: 'edited'
+                            }
+                        ]
+                    },
+                    expect: function (result) {
+                        result.get('title').should.eql(testUtils.fixtures.getAll().posts[1].title);
+                        result.related('tags').length.should.eql(1);
+
+                        result.related('tags').models[0].id.should.eql(testUtils.fixtures.getAll().posts[1].tags[0].id);
+                        result.related('tags').models[0].get('slug').should.eql('edited');
+
+                        return testUtils.database.getConnection()('posts_tags')
+                            .then(function (result) {
+                                result.length.should.eql(1);
+                            })
+                            .then(function () {
+                                return testUtils.database.getConnection()('tags');
+                            })
+                            .then(function (result) {
+                                result.length.should.eql(2);
                             });
                     }
                 }

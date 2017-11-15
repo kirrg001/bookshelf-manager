@@ -14,9 +14,12 @@ describe('[Integration] Mixed', function () {
 
     describe('fetch', function () {
         it('existing', function () {
-            return models.Post.fetchAll({withRelated: ['news', 'tags', 'custom_fields']})
+            return models.Post.fetchAll({withRelated: ['author', 'news', 'tags', 'custom_fields']})
                 .then(function (posts) {
                     posts.length.should.eql(2);
+                    posts.models[0].related('author').toJSON().should.eql(testUtils.fixtures.getAll().posts[0].author);
+                    posts.models[1].related('author').toJSON().should.eql(testUtils.fixtures.getAll().posts[1].author);
+
                     posts.models[0].related('news').toJSON().should.eql({});
                     posts.models[1].related('news').toJSON().should.eql(testUtils.fixtures.getAll().posts[1].news);
 
@@ -44,11 +47,15 @@ describe('[Integration] Mixed', function () {
                                 slug: 'football'
                             }
                         ],
+                        author: {
+                            name: 'Franz'
+                        },
                         custom_fields: []
                     },
                     expect: function (result) {
                         result.get('title').should.eql('only-me');
                         result.related('news').toJSON().keywords.should.eql('future,something');
+                        result.related('author').toJSON().name.should.eql('Franz');
                         result.related('tags').models.length.should.eql(1);
                         result.related('tags').models[0].get('slug').should.eql('football');
                         result.related('custom_fields').models.length.should.eql(0);
